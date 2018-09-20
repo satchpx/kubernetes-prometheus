@@ -210,6 +210,7 @@ metadata:
   creationTimestamp: null
   name: alertmanager-templates
   namespace: monitoring
+  namespace: monitoring
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -407,7 +408,8 @@ spec:
           mountPath: /var
       volumes:
       - name: grafana-persistent-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: grafana-pvc
 ---
 apiVersion: v1
 data:
@@ -2249,6 +2251,7 @@ metadata:
   creationTimestamp: null
   name: grafana-import-dashboards
   namespace: monitoring
+  namespace: monitoring
 ---
 apiVersion: batch/v1
 kind: Job
@@ -2332,6 +2335,22 @@ spec:
 #         backend:
 #          serviceName: grafana
 #          servicePort: 3000
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: px-high-rf2
+  labels:
+    app: grafana
+    component: core
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
@@ -2460,6 +2479,7 @@ metadata:
   creationTimestamp: null
   name: prometheus-core
   namespace: monitoring
+  namespace: monitoring
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -2502,6 +2522,8 @@ spec:
           mountPath: /etc/prometheus
         - name: rules-volume
           mountPath: /etc/prometheus-rules
+        - name: prom-storage
+          mountPath: /prometheus
       volumes:
       - name: config-volume
         configMap:
@@ -2509,6 +2531,9 @@ spec:
       - name: rules-volume
         configMap:
           name: prometheus-rules
+      - name: prom-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -2516,7 +2541,7 @@ metadata:
   name: kube-state-metrics
   namespace: monitoring
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -2530,7 +2555,7 @@ spec:
         - containerPort: 8080
 ---
 # ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
+# apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRoleBinding
 # metadata:
 #   name: kube-state-metrics
@@ -2543,7 +2568,7 @@ spec:
 #   name: kube-state-metrics
 #   namespace: monitoring
 # ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
+# apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRole
 # metadata:
 #   name: kube-state-metrics
@@ -2779,9 +2804,10 @@ metadata:
   creationTimestamp: null
   name: prometheus-rules
   namespace: monitoring
+  namespace: monitoring
 ---
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: prometheus
@@ -2794,7 +2820,7 @@ subjects:
   name: prometheus-k8s
   namespace: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: prometheus
@@ -2838,3 +2864,16 @@ spec:
   selector:
     app: prometheus
     component: core
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: px-high-rf2
+provisioner: kubernetes.io/portworx-volume
+parameters:
+  fs: "ext4"
+  block_size: "4k"
+  shared: "false"
+  repl: "2"
+  snap_interval:   "0"
+  priority_io:  "high"
