@@ -49,4 +49,5 @@ spec:
           mountPath: /var
       volumes:
       - name: grafana-persistent-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: grafana-pvc
