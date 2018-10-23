@@ -2806,6 +2806,22 @@ metadata:
   namespace: monitoring
   namespace: monitoring
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: px-high-rf2
+  labels:
+    app: prometheus
+    component: core
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
