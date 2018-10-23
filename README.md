@@ -1,4 +1,4 @@
-# Kubernetes Setup for Prometheus and Grafana
+# Kubernetes Setup for Prometheus and Grafana backed by Portworx Volumes
 
 ## Quick start
 
@@ -27,6 +27,10 @@ In case the job already exists from an earlier run, delete it before:
 kubectl --namespace monitoring delete job grafana-import-dashboards
 ```
 
+## Portworx Dashboards
+# @TODO: To be added
+
+## @TODO: Add retention to prometheus
 
 ## More Dashboards
 
