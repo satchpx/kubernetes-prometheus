@@ -28,7 +28,7 @@ kubectl --namespace monitoring delete job grafana-import-dashboards
 ```
 
 ## Portworx Dashboards
-# @TODO: To be added
+@TODO: To be added
 
 ## @TODO: Add retention to prometheus
 
