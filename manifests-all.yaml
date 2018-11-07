@@ -2340,6 +2340,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: grafana-pvc
+  namespace: monitoring
   annotations:
     volume.beta.kubernetes.io/storage-class: px-high-rf2
   labels:
@@ -2810,6 +2811,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prometheus-pvc
+  namespace: monitoring
   annotations:
     volume.beta.kubernetes.io/storage-class: px-high-rf2
   labels:
